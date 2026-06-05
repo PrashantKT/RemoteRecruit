@@ -28,6 +28,7 @@ extension EndPointType {
     }
 }
 
+nonisolated
 struct PagingInfo {
     let limit: Int
     let offset: Int
@@ -36,6 +37,10 @@ struct PagingInfo {
         limit: 20,
         offset: 0
     )
+    
+    func nextPage() -> PagingInfo {
+        PagingInfo(limit: limit, offset: offset + limit)
+    }
 }
 
 enum JobEndPoint: EndPointType {

@@ -20,7 +20,14 @@ struct JobDTO: Decodable {
     let title: String
     let companyName: String
     let companyLogo: String?
+    let employmentType: String?
+    let minSalary: Double?
+    let maxSalary: Double?
+    let currency: String?
+    let categories: [String]
     let locationRestrictions: [String]
     let description: String
     let applicationLink: String
+    let pubDate: Date
+    let expiryDate: Date
 }

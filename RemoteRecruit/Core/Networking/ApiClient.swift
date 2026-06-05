@@ -26,7 +26,7 @@ final class ApiClient: NSObject,ApiClientType {
     func sendRequest<T: Decodable>(endPoint: EndPointType) async throws -> T {
         let req = try reqBuilder.buildRequest(for: endPoint)
         let (data,res) = try await urlSession.data(for: req)
-        
+        print("Requested \(req.url)")
         guard let res = res as? HTTPURLResponse else {
             throw NetworkError.invalidResponse
         }
@@ -37,11 +37,12 @@ final class ApiClient: NSObject,ApiClientType {
         do {
             
             let jsonDecoder = JSONDecoder()
-            
+            jsonDecoder.dateDecodingStrategy = .secondsSince1970
             let parsing = try jsonDecoder.decode(T.self, from: data)
             return parsing
 
         } catch {
+            print(error)
             throw NetworkError.decodingError
         }
         
