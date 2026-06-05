@@ -1,0 +1,10 @@
+//
+//  Debug.xcconfig
+//  RemoteRecruit
+//
+//  Created by Prashant Tukadiya on 05/06/26.
+//
+
+BASEURL = https:/$()/himalayas.app/jobs
+
+
