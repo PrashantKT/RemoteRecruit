@@ -58,15 +58,12 @@ struct JobDetailsViewModelTests {
         let items = viewModel.detailItems
         #expect(items.count == 3)
 
-        // Location item
         #expect(items[0].id == "location")
         #expect(items[0].value == "London")
 
-        // Salary item
         #expect(items[1].id == "salary")
         #expect(items[1].value == "£40k - £50k")
 
-        // Employment type item
         #expect(items[2].id == "type")
         #expect(items[2].value == "Part-time")
     }
@@ -95,11 +92,9 @@ struct JobDetailsViewModelTests {
         let validJob = makeTestJob(applicationLink: "https://apple.com/careers")
         #expect(JobDetailsViewModel(job: validJob).applicationURL == URL(string: "https://apple.com/careers")!)
 
-        // Empty Link
         let emptyJob = makeTestJob(applicationLink: "")
         #expect(JobDetailsViewModel(job: emptyJob).applicationURL == URL(string: "https://himalayas.app")!)
 
-        // Whitespace Link
         let whitespaceJob = makeTestJob(applicationLink: "   ")
         #expect(JobDetailsViewModel(job: whitespaceJob).applicationURL == URL(string: "https://himalayas.app")!)
     }
@@ -110,15 +105,12 @@ struct JobDetailsViewModelTests {
         let jobWithLogo = makeTestJob(companyLogo: "https://example.com/logo.png")
         #expect(JobDetailsViewModel(job: jobWithLogo).companyLogoURL == URL(string: "https://example.com/logo.png"))
 
-        // Nil Logo
         let jobNoLogo = makeTestJob(companyLogo: nil)
         #expect(JobDetailsViewModel(job: jobNoLogo).companyLogoURL == nil)
 
-        // Empty Logo
         let jobEmptyLogo = makeTestJob(companyLogo: "")
         #expect(JobDetailsViewModel(job: jobEmptyLogo).companyLogoURL == nil)
 
-        // Whitespace Logo
         let jobWhitespaceLogo = makeTestJob(companyLogo: "    ")
         #expect(JobDetailsViewModel(job: jobWhitespaceLogo).companyLogoURL == nil)
     }

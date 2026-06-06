@@ -9,23 +9,34 @@ import SwiftUI
 
 struct JobListView: View {
     @State var vm: JobListViewModel = JobListFactory.makeViewModel()
-
+    @Environment(NetworkMonitor.self) var monitor
     var body: some View {
         NavigationStack {
-            content
-                .navigationTitle("Browse Jobs")
-                .searchable(
-                    text: $vm.searchText,
-                    placement: .navigationBarDrawer(displayMode: .automatic),
-                    prompt: "Job title or company"
-                )
+            Group {
+                if !monitor.isConnected {
+                    ErrorViewAction(title: "Network Error", message: "Please check your internet connection", systemImage: "wifi.slash") {
+                        await vm.getJobs()
+                    }
+                } else {
+                    content
+                       
+                }
                 
-        }
-        .task(id: vm.searchText) {
-            await vm.searchJobs()
-        }
-        .task {
-            await vm.getJobs()
+            }
+            .navigationTitle("Browse Jobs")
+            .searchable(
+                text: $vm.searchText,
+                placement: .navigationBarDrawer(displayMode: .automatic),
+                prompt: "Job title or company"
+            )
+            .task(id: vm.searchText) {
+                await vm.searchJobs()
+            }
+            .task {
+                await vm.getJobs()
+            }.refreshable {
+                await vm.getJobs(force: true)
+            }
         }
     }
 
@@ -92,50 +103,10 @@ struct JobListView: View {
         }
     }
 
-    private var topHeader: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Browse Jobs")
-                    .font(.title2.weight(.bold))
-                    .foregroundStyle(.primary)
-                Text(vm.searchText.isEmpty
-                     ? "Latest remote opportunities curated for you."
-                     : "Showing results for \"\(vm.searchText)\"")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            HStack(spacing: 8) {
-                Text("\(vm.jobs.count)")
-                    .font(.headline.weight(.bold))
-                Text(vm.jobs.count == 1 ? "opening" : "openings")
-                    .font(.subheadline.weight(.medium))
-                Spacer()
-                if !vm.searchText.isEmpty {
-                    Text("Search active")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(Color(.secondarySystemGroupedBackground))
-                        .clipShape(Capsule())
-                }
-            }
-            .foregroundStyle(.primary)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 14)
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .strokeBorder(Color(.separator).opacity(0.12), lineWidth: 1)
-        )
-        .padding(.horizontal, 16)
-    }
 }
 
 #Preview {
+    @Previewable @State  var monitor = NetworkMonitor()
     JobListView()
+        .environment(monitor)
 }

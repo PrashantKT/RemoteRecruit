@@ -28,6 +28,52 @@ struct JobListViewModelTests {
         #expect(repo.requestedPages.count == 1)
         #expect(repo.requestedPages.first?.offset == 0)
     }
+    
+    @Test func getJobsDoesNotFetchAgainIfAlreadySuccessAndNotForced() async throws {
+        let jobs = [makeJob(id: "1")]
+        let repo = MockJobRepo(
+            getJobsResponses: [
+                JobPage(jobs: jobs, offset: 0, limit: 20, totalCount: 1)
+            ],
+            searchResponse: []
+        )
+        let viewModel = JobListViewModel(jobListRepo: repo)
+
+        await viewModel.getJobs()
+        #expect(repo.requestedPages.count == 1)
+
+        await viewModel.getJobs(force: false)
+        #expect(repo.requestedPages.count == 1)
+    }
+    
+    @Test func getJobsFetchesAgainIfAlreadySuccessAndForced() async throws {
+        let jobs = [makeJob(id: "1")]
+        let repo = MockJobRepo(
+            getJobsResponses: [
+                JobPage(jobs: jobs, offset: 0, limit: 20, totalCount: 1),
+                JobPage(jobs: jobs, offset: 0, limit: 20, totalCount: 1)
+            ],
+            searchResponse: []
+        )
+        let viewModel = JobListViewModel(jobListRepo: repo)
+
+        await viewModel.getJobs()
+        #expect(repo.requestedPages.count == 1)
+
+        await viewModel.getJobs(force: true)
+        #expect(repo.requestedPages.count == 2) // Should increment
+    }
+
+
+    @Test func getJobsHandlesNetworkErrors() async throws {
+        let repo = MockJobRepo(getJobsResponses: [], searchResponse: [], errorToThrow: .invalidResponse)
+        let viewModel = JobListViewModel(jobListRepo: repo)
+        
+        await viewModel.getJobs()
+        #expect(viewModel.state == .failure(NetworkError.invalidResponse.userFriendlyMessage))
+        #expect(viewModel.jobs.isEmpty)
+    }
+
 
     @Test func searchJobsReplacesLoadedJobsAndRestoresOnEmptyQuery() async throws {
         let initialJobs = [makeJob(id: "1"), makeJob(id: "2")]
@@ -99,6 +145,30 @@ struct JobListViewModelTests {
         #expect(repo.requestedPages.count == 1)
         #expect(repo.requestedPages.last?.offset == 0)
 
+    }
+    
+    @Test func loadNextPageExitsEarlyIfJobsEmpty() async throws {
+        let repo = MockJobRepo(getJobsResponses: [], searchResponse: [])
+        let viewModel = JobListViewModel(jobListRepo: repo)
+
+        // Attempting to trigger load when empty
+        await viewModel.loadNextPageIfNeeded(currentJob: makeJob(id: "1"))
+        #expect(repo.requestedPages.isEmpty)
+    }
+    
+    @Test func loadNextPageExitsWhenNoMorePages() async throws {
+        let firstPageJobs = [makeJob(id: "1"), makeJob(id: "2")]
+        let repo = MockJobRepo(
+            getJobsResponses: [
+                JobPage(jobs: firstPageJobs, offset: 0, limit: 2, totalCount: 2)
+            ],
+            searchResponse: []
+        )
+        let viewModel = JobListViewModel(jobListRepo: repo)
+        await viewModel.getJobs()
+
+        await viewModel.loadNextPageIfNeeded(currentJob: firstPageJobs.last!)
+        #expect(repo.requestedPages.count == 1)
     }
     
     //Searching

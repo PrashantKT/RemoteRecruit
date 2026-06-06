@@ -14,14 +14,13 @@ struct HTMLText: View {
     
     var body: some View {
         if let attributedString = try? AttributedString(htmlData: Data(htmlString.utf8)) {
-            Text(attributedString) // Displays styled text natively
+            Text(attributedString)
         } else {
-            Text(htmlString) // Fallback to raw text if parsing fails
+            Text(htmlString)
         }
     }
 }
 
-// Helper extension to keep your views clean
 extension AttributedString {
     init(htmlData: Data) throws {
         let nsAttributedString = try NSAttributedString(

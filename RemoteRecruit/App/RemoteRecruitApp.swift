@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct RemoteRecruitApp: App {
+    @State private var networkMonitor = NetworkMonitor()
     var body: some Scene {
         WindowGroup {
             JobListView()
+                .environment(networkMonitor)
         }
     }
 }

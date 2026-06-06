@@ -38,16 +38,22 @@ enum AppTheme {
             return .gray
         }
     }
-
-    static func avatarGradient(for name: String) -> LinearGradient {
+    
+    static  func getColors(from name: String) -> (Color, Color) {
         let palettes: [(Color, Color)] = [
             (Color(hex: "2F6BFF"), Color(hex: "6D4CFF")),
             (Color(hex: "12A57A"), Color(hex: "54C6A0")),
             (Color(hex: "F97316"), Color(hex: "FDBA74")),
             (Color(hex: "0EA5E9"), Color(hex: "38BDF8"))
         ]
-        let hash = name.unicodeScalars.reduce(0) { ($0 &* 31) &+ Int($1.value) }
-        let pair = palettes[abs(hash) % palettes.count]
+        
+        let index = name.count % palettes.count
+        let pair = palettes[index]
+        return pair
+    }
+
+    static func avatarGradient(for name: String) -> LinearGradient {
+        let pair = getColors(from: name)
         return LinearGradient(colors: [pair.0, pair.1], startPoint: .topLeading, endPoint: .bottomTrailing)
     }
 }
