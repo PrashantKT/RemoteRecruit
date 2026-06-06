@@ -60,99 +60,75 @@ The application handles:
 
 # Architecture
 
-RemoteRecruit follows the CLEAN MVVM (Model-View-ViewModel) architecture pattern with a layered approach for better separation of concerns, testability, and scalability.
+RemoteRecruit follows a CLEAN Architecture approach combined with MVVM (Model-View-ViewModel) for the presentation layer. This layered approach ensures better separation of concerns, testability, and scalability.
 
 ## Architecture Flow
 
 ```
 ┌─────────────────────────────────────────┐
-│             View Layer                  │
-│    (SwiftUI Views & Screens)            │
+│           Feature Layer                 │
+│      (SwiftUI Views & ViewModels)       │
 └─────────────────┬───────────────────────┘
                   │
 ┌─────────────────▼───────────────────────┐
-│           ViewModel Layer               │
-│   (Business Logic & State Management)   │
+│           Domain Layer                  │
+│   (Entities & Repository Protocols)     │
 └─────────────────┬───────────────────────┘
                   │
 ┌─────────────────▼───────────────────────┐
-│         Repository Layer                │
-│   (Abstraction & Data Coordination)     │
+│             Data Layer                  │
+│ (Repository Impl, DTOs & Mappers)       │
 └─────────────────┬───────────────────────┘
                   │
 ┌─────────────────▼───────────────────────┐
-│          Service Layer                  │
-│    (API Calls & Data Fetching)          │
-└─────────────────┬───────────────────────┘
-                  │
-┌─────────────────▼───────────────────────┐
-│         Data Source Layer               │
-│            (REST API )      
+│             Core Layer                  │
+│       (Networking & Utilities)          │
 └─────────────────────────────────────────┘
 ```
 
-### Model Layer
+### Feature Layer (Presentation)
 
-Contains domain models and data structures used throughout the application.
-
-Examples:
-
-* Job
-* Company
-* SearchFilter
-
-### View Layer
-
-Responsible for UI rendering and user interactions.
+Responsible for UI rendering, state management, and user interactions. Features are encapsulated into their own modules.
 
 Examples:
 
-* JobListView
-* JobDetailView
-* JobRowView
-* SearchBarView
+* JobListView, JobDetailsView
+* JobListViewModel, JobDetailsViewModel
 
-### ViewModel Layer
+### Domain Layer
 
-Responsible for business logic, state management, and data flow.
+Contains the core business rules and enterprise logic. It is completely independent of other layers.
 
 Examples:
 
-* JobListViewModel
-* JobDetailViewModel
+* Entities: `Job`
+* Protocols: `JobRepoType`, `JobDetailRepoType`
 
-### Repository Layer
+### Data Layer
 
-Acts as an abstraction layer between ViewModels and Services. Provides a clean interface for data operations.
+Implements the repository protocols defined in the Domain layer. It is responsible for fetching data, parsing it into DTOs (Data Transfer Objects), and mapping it to Domain Entities.
 
-Benefits:
+Examples:
 
-* Better separation of concerns
-* Easier testing with mock implementations
-* Scalability and maintainability
-* Data source independence
+* `JobNetworkRepo`
+* `JobDTO`, `Mapper`
 
-### Service Layer
+### Core Layer
 
-Responsible for fetching and managing data.
+Contains foundational infrastructure required by the application, such as network clients and utilities.
 
-Current implementation:
-*  REST API 
-*  Can easily be cached & stored
+Examples:
+
+* `ApiClient`, `RequestBuilder`, `NetworkMonitor`
 
 ### Dependency Injection
 
-Dependencies are injected through constructors to improve:
-
-* Testability
-* Maintainability
-* Loose Coupling
-* Code Reusability
+Dependencies are injected through constructors to improve testability, loose coupling, and code reusability. Factory patterns are used to construct features.
 
 Example:
 
 ```swift
-init(repository: JobRepositoryProtocol) {
+init(repository: JobRepoType) {
     self.repository = repository
 }
 ```
@@ -167,42 +143,29 @@ RemoteRecruit
 ├── App
 │   └── RemoteRecruitApp.swift
 │
-├── Models
-│   ├── Job.swift
-│   ├── Company.swift
-│   └── SearchFilter.swift
+├── Core
+│   └── Networking (ApiClient, RequestBuilder, etc.)
 │
-├── Views
-│   ├── JobListView.swift
-│   ├── JobDetailView.swift
-│   ├── JobRowView.swift
-│   └── SearchBarView.swift
+├── Data
+│   ├── DTO
+│   ├── Mapper
+│   └── Repository (JobNetworkRepo)
 │
-├── ViewModels
-│   ├── JobListViewModel.swift
-│   ├── JobDetailViewModel.swift
-│   └── SearchViewModel.swift
+├── Domain
+│   ├── Entities (Job)
+│   └── Repository (JobRepoType, JobDetailRepoType)
 │
-├── Repository
-│   ├── JobRepositoryProtocol.swift
-│   └── JobRepository.swift
+├── Features
+│   ├── Job Details (View, ViewModel)
+│   └── JobList (View, ViewModel, Factory)
 │
-├── Service
-│   ├── JobServiceProtocol.swift
-│   └── JobService.swift
-│
-├── DI
-│   └── DIContainer.swift
-│
-├── Resources
-│   ├── jobs.json
-│   └── Assets.xcassets
+├── Helper & Utils (Extensions, StateMachine, Theme)
 │
 └── Tests
-    ├── ViewModelTests
-    ├── RepositoryTests
-    ├── ServiceTests
-    └── SearchTests
+    ├── JobDTOMapperTests.swift
+    ├── JobDetailsViewModelTests.swift
+    ├── JobListViewModelTests.swift
+    └── RemoteRecruitTests.swift
 ```
 
 ---
@@ -230,31 +193,7 @@ cd RemoteRecruit
 open RemoteRecruit.xcodeproj
 ```
 
-### 3. Add JSON Data File
-
-Place `jobs.json` inside the Resources folder:
-
-```
-Resources/jobs.json
-```
-
-Sample JSON structure:
-
-```json
-[
-  {
-    "id": "1",
-    "title": "iOS Developer",
-    "company": "Tech Corp",
-    "location": "San Francisco, CA",
-    "salary": "$120k - $150k",
-    "description": "Looking for an experienced iOS developer...",
-    "type": "Full-time"
-  }
-]
-```
-
-### 4. Build and Run
+### 3. Build and Run
 
 ```bash
 Cmd + B  (Build)
@@ -292,30 +231,25 @@ xcodebuild test -scheme RemoteRecruit
 
 ### Data Source
 
-The application currently uses a local JSON file as the data source.
+The application connects to a remote REST API to fetch real-time job listings. The network layer is built using Swift's async/await concurrency model.
 
-**Reason:**
-* Simpler setup without external dependencies
-* No dependency on external APIs or authentication
-* Easy to switch to a live API later without changing ViewModels
-
-**Future Enhancement:**
-* REST API integration
-* Real-time job listings
-* Pagination support
+**Features:**
+* Robust networking with `ApiClient`
+* DTO mapping to domain models
+* Real-time search support
+* Pagination/Offset handling implemented via `PagingInfo`
 
 ### Search Behavior
 
-Search is performed locally on the downloaded job list.
+Search is performed remotely using the REST API endpoint.
 
 **Supported fields:**
 * Job Title
 * Company Name
 
 **Search characteristics:**
-* Case-insensitive matching
-* Real-time filtering
-* Efficient local search
+* Case-insensitive matching via API
+* Real-time backend filtering
 
 ### Pagination
 
