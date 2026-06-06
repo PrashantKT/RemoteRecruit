@@ -13,7 +13,7 @@ struct JobDTOMapperTests {
             employmentType: "Full Time",
             minSalary: 500000,
             maxSalary: 550000,
-            currency: "ZAR",
+            currency: "INR",
             categories: ["Operations"],
             locationRestrictions: ["South Africa"],
             description: "<p>Role</p>",
@@ -24,7 +24,7 @@ struct JobDTOMapperTests {
 
         let job = dto.toDomain()
 
-        #expect(job.salaryRange == "ZAR 500,000 - 550,000")
+        #expect(job.salaryRange == "INR 500,000 - 550,000")
     }
 
     @Test func salaryRangeCollapsesToSingleAmountWhenMinAndMaxMatch() {
@@ -36,7 +36,7 @@ struct JobDTOMapperTests {
             employmentType: "Full Time",
             minSalary: 250000,
             maxSalary: 250000,
-            currency: "ZAR",
+            currency: "INR",
             categories: ["Operations"],
             locationRestrictions: ["South Africa"],
             description: "<p>Role</p>",
@@ -47,6 +47,6 @@ struct JobDTOMapperTests {
 
         let job = dto.toDomain()
 
-        #expect(job.salaryRange == "ZAR 250,000")
+        #expect(job.salaryRange == "INR 250,000")
     }
 }
