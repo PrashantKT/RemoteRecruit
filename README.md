@@ -174,9 +174,9 @@ RemoteRecruit
 
 ## Prerequisites
 
-* Xcode 15 or later
-* iOS 16.0+
-* Swift 5.9+
+* Xcode 26 or later
+* iOS 26.0+
+* Swift 6.2+
 
 ## Installation
 
@@ -365,7 +365,7 @@ Contributions are welcome! Please follow these steps:
 
 ### Build Failures
 
-* Ensure Xcode 15+ is installed
+* Ensure Xcode 26+ is installed
 * Clean build folder: `Cmd + Shift + K`
 * Delete derived data: `rm -rf ~/Library/Developer/Xcode/DerivedData/*`
 
