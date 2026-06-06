@@ -36,7 +36,6 @@ Users can search jobs by:
 
 * Job Title
 * Company Name
-* Advanced filtering options
 
 ### Job Details Screen
 
@@ -47,7 +46,6 @@ Displays detailed information including:
 * Salary Range
 * Job Location
 * Job Type
-* Experience Level
 
 ### State Handling
 
@@ -89,7 +87,7 @@ RemoteRecruit follows the CLEAN MVVM (Model-View-ViewModel) architecture pattern
                   │
 ┌─────────────────▼───────────────────────┐
 │         Data Source Layer               │
-│    (Local JSON / REST API / Cache)      │
+│            (REST API )      
 └─────────────────────────────────────────┘
 ```
 
@@ -122,7 +120,6 @@ Examples:
 
 * JobListViewModel
 * JobDetailViewModel
-* SearchViewModel
 
 ### Repository Layer
 
@@ -140,8 +137,8 @@ Benefits:
 Responsible for fetching and managing data.
 
 Current implementation:
-* Local JSON file (default)
-* Can easily be replaced with REST API without changing ViewModels
+*  REST API 
+*  Can easily be cached & stored
 
 ### Dependency Injection
 
@@ -214,9 +211,9 @@ RemoteRecruit
 
 ## Prerequisites
 
-* Xcode 15 or later
-* iOS 16.0+
-* Swift 5.9+
+* Xcode 26 or later
+* iOS 26.0+
+* Swift 6.2+
 
 ## Installation
 
