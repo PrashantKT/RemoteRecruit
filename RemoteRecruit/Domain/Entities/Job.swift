@@ -9,7 +9,10 @@ import Foundation
 
 struct Job: Identifiable, Equatable {
 
-    var id: String { guid }
+    var id: String {
+        [guid, title, companyName, String(Int(createdAt.timeIntervalSince1970))]
+            .joined(separator: "|") // we dont have id in api 
+    }
 
     let guid: String
 

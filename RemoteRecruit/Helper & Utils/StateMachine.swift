@@ -6,11 +6,10 @@
 //
 
 
-enum StateMachine {
+enum StateMachine: Equatable {
     case idle
     case loading
     case empty
     case success
     case failure(String)
 }
-

@@ -29,6 +29,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		102AD7B12FD414890065A13A /* RemoteRecruit.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = RemoteRecruit.xctestplan; sourceTree = "<group>"; };
 		10AE0E0C2FD2FB8000D8E6E7 /* RemoteRecruit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RemoteRecruit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		10AE0E192FD2FB8200D8E6E7 /* RemoteRecruitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RemoteRecruitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		10AE0E232FD2FB8200D8E6E7 /* RemoteRecruitUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RemoteRecruitUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -95,6 +96,7 @@
 		10AE0E032FD2FB8000D8E6E7 = {
 			isa = PBXGroup;
 			children = (
+				102AD7B12FD414890065A13A /* RemoteRecruit.xctestplan */,
 				10AE0E552FD2FD0900D8E6E7 /* Release.xcconfig */,
 				10AE0E512FD2FCD100D8E6E7 /* Debug.xcconfig */,
 				10AE0E0E2FD2FB8000D8E6E7 /* RemoteRecruit */,

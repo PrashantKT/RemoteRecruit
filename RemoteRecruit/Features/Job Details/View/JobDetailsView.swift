@@ -8,150 +8,166 @@
 import SwiftUI
 
 struct JobDetailsView: View {
-    let job: Job
-    var body: some View {
-        ScrollView(.vertical, showsIndicators: true) {
-            VStack(alignment: .leading, spacing: 24) {
-                headerHeroSection
-                Divider()
-                metadataTagSection
-                Divider()
-                descriptionSection
-            }
-            .padding()
-        }
-        .navigationBarTitleDisplayMode(.inline)
-        .background(Color(.systemGroupedBackground).edgesIgnoringSafeArea(.all))
-       
+    private let viewModel: JobDetailsViewModel
+
+    init(job: Job) {
+        self.viewModel = JobDetailsViewModel(job: job)
     }
-    
-    // MARK: - Components
-    
-    private var headerHeroSection: some View {
-        HStack(alignment: .top, spacing: 16) {
-            // Company Logo Placeholder / Remote Image Loading
-            AsyncImage(url: URL(string: job.companyLogo ?? "")) { image in
-                image.resizable()
-                    .aspectRatio(contentMode: .fit)
-            } placeholder: {
-                Circle()
-                    .fill(Color.accentColor.opacity(0.1))
-                    .overlay(
-                        Image(systemName: "briefcase.fill")
-                            .foregroundColor(.accentColor)
-                    )
-            }
-            .frame(width: 64, height: 64)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-            
-            VStack(alignment: .leading, spacing: 6) {
-                Text(job.companyName)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.secondary)
-                
-                Text(job.title)
-                    .font(.title3)
-                    .bold()
-                    .lineLimit(3)
-                    .foregroundColor(.primary)
-                    .fixedSize(horizontal: false, vertical: true)
-                
-                Spacer()
-                VStack {
-                    Text(job.createdAt.formatted(date: .complete, time: .omitted))
+
+    var body: some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 18) {
+                JobDetailsHeroView(viewModel: viewModel)
+                detailsRow
+                    .padding(.horizontal, 16)
+
+                contentCard(title: "About \(viewModel.job.companyName)") {
+                    Text(viewModel.companySummary)
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    
-                   
+                        .foregroundStyle(.secondary)
+                        .lineSpacing(4)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.horizontal, 16)
+
+
+                contentCard(title: "Job Description") {
+                    HTMLText(htmlString: viewModel.job.description)
+                        .font(.body)
+                        .foregroundStyle(.primary)
+                        .lineSpacing(6)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.horizontal, 16)
+
+                if !viewModel.locationTags.isEmpty {
+                    contentCard(title: "Location Tags") {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(viewModel.locationTags, id: \.self) { tag in
+                                    Text(tag)
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(AppTheme.accentBlue)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 8)
+                                        .background(AppTheme.accentBlue.opacity(0.10))
+                                        .clipShape(Capsule())
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                }
+            }
+            .padding(.bottom, 20)
+        }
+        .ignoresSafeArea(edges: .top)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            applyBar
+        }
+        .background {
+            LinearGradient(
+                colors: [AppTheme.backgroundStart, AppTheme.backgroundEnd],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+        }
+    }
+
+    private var detailsRow: some View {
+        HStack(spacing: 0) {
+            ForEach(viewModel.detailItems.indices, id: \.self) { index in
+                detailCard(viewModel.detailItems[index])
+
+                if index < viewModel.detailItems.count - 1 {
+                    divider
                 }
             }
         }
-        .padding(.top, 8)
+        .padding(.vertical, 14)
+        .background(AppTheme.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(AppTheme.subtleBorder, lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.03), radius: 10, x: 0, y: 4)
     }
-    
-    private var metadataTagSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("Job Overview")
-                .font(.headline)
-            
-            LazyVGrid(columns: [GridItem(.flexible())], spacing: 12) {
-                metadataCard(icon: "dollarsign.circle.fill", color: .green, title: "Compensation", value: job.salaryRange ?? "Not Disclosed")
-                metadataCard(icon: "clock.fill", color: .orange, title: "Job Type", value: job.employmentType ?? "Not Disclosed")
-                metadataCard(icon: "globe", color: .blue, title: "Location", value: job.jobRestrictions.joined(separator: ", "))
 
-                
-            }
-        }
-    }
-    
-  
-    
-    private var descriptionSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Role Description")
-                .font(.headline)
-            
-            
-            HTMLText(htmlString: job.description)
-                .font(.body)
-                .lineSpacing(6)
-                .foregroundColor(.primary)
-        }
-    }
-    
-    private var applyButtonStickyBar: some View {
+    private var applyBar: some View {
         VStack(spacing: 0) {
             Divider()
-            HStack {
-                Link(destination: URL(string: job.applicationLink) ?? URL(string: "https://himalayas.app")!) {
-                    Text("Apply on Platform")
+
+            VStack(spacing: 10) {
+                Link(destination: viewModel.applicationURL) {
+                    Label("Apply on Platform", systemImage: "arrow.up.right.square")
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color.accentColor)
-                        .cornerRadius(12)
-                        .shadow(color: Color.accentColor.opacity(0.3), radius: 8, x: 0, y: 4)
+                        .frame(height: 52)
+                        .background(AppTheme.accentBlue, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .shadow(color: AppTheme.accentBlue.opacity(0.28), radius: 10, x: 0, y: 4)
                 }
+
             }
-            .padding(.horizontal)
+            .padding(.horizontal, 16)
             .padding(.top, 12)
-            .padding(.bottom, 24)
+            .padding(.bottom, 8)
             .background(.ultraThinMaterial)
         }
     }
-    
-    // MARK: - Sub-View Helpers
-    private func metadataCard(icon: String, color: Color, title: String, value: String) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundColor(color)
-                .frame(width: 32, height: 32)
-                .background(color.opacity(0.1))
-                .clipShape(Circle())
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-                    .textCase(.uppercase)
-                Text(value)
-                    .font(.footnote)
-                    .fontWeight(.medium)
-                    .foregroundColor(.primary)
-                    .lineLimit(nil)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            Spacer()
+
+    private func detailCard(_ item: JobDetailsViewModel.DetailItem) -> some View {
+        VStack(spacing: 6) {
+            Image(systemName: item.icon)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(item.tint)
+
+            Text(item.title.uppercased())
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .tracking(0.6)
+
+            Text(item.value)
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(10)
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(10)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 12)
+    }
+
+    private func contentCard<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title)
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(.primary)
+
+            content()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(AppTheme.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(AppTheme.subtleBorder, lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.03), radius: 10, x: 0, y: 4)
+    }
+
+    private var divider: some View {
+        Rectangle()
+            .fill(AppTheme.subtleBorder)
+            .frame(width: 1, height: 54)
     }
 }
+
 #Preview {
-    JobDetailsView(job: .preview)
+    NavigationStack {
+        JobDetailsView(job: .preview)
+    }
 }

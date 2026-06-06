@@ -1,0 +1,38 @@
+{
+  "configurations" : [
+    {
+      "id" : "3FC58428-AF66-4815-9D6A-007E0C6FDF05",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:RemoteRecruit.xcodeproj",
+      "identifier" : "10AE0E0B2FD2FB8000D8E6E7",
+      "name" : "RemoteRecruit"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:RemoteRecruit.xcodeproj",
+        "identifier" : "10AE0E182FD2FB8200D8E6E7",
+        "name" : "RemoteRecruitTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:RemoteRecruit.xcodeproj",
+        "identifier" : "10AE0E222FD2FB8200D8E6E7",
+        "name" : "RemoteRecruitUITests"
+      }
+    }
+  ],
+  "version" : 1
+}
