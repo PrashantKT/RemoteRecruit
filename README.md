@@ -174,9 +174,9 @@ RemoteRecruit
 
 ## Prerequisites
 
-* Xcode 26 or later
-* iOS 26.0+
-* Swift 6.2+
+* Xcode 15 or later
+* iOS 16.0+
+* Swift 5.9+
 
 ## Installation
 
@@ -206,11 +206,10 @@ Cmd + R  (Run)
 
 Tests cover:
 
-* Job fetching and parsing
-* Search filtering logic
+* Job DTO mapping and data formatting
+* Search and debouncing logic
 * ViewModel state management
-* Repository layer functionality
-* Service layer operations
+* Pagination and infinite scrolling
 * Error handling scenarios
 
 ### Execute Tests
@@ -253,12 +252,8 @@ Search is performed remotely using the REST API endpoint.
 
 ### Pagination
 
-Pagination is not implemented for the current version due to small mock dataset.
-
-**For production systems, recommended:**
-* Server-side pagination
-* Infinite scrolling
-* Load more functionality
+Server-side pagination and infinite scrolling are implemented. 
+As the user scrolls down the list, the `JobListViewModel` triggers `loadNextPageIfNeeded`, dynamically fetching subsequent pages utilizing `PagingInfo`.
 
 ### Authentication
 
@@ -275,12 +270,10 @@ Offline storage is not implemented in the current version.
 
 ### Images
 
-Company logos are not included in the current version.
+Company logos are loaded dynamically.
 
-**Production enhancements:**
-* AsyncImage
-* Kingfisher for image caching
-* SDWebImage integration
+**Implementation details:**
+* Uses `AsyncImage` for asynchronous remote image loading.
 
 ---
 
@@ -290,17 +283,17 @@ Unit tests focus on business logic rather than UI components.
 
 ## Covered Areas
 
-* **Repository Layer** - Data source abstraction and switching
-* **Service Layer** - Data fetching and error handling
-* **ViewModels** - State management and business logic
-* **Search Logic** - Filtering and search accuracy
+* **Data Mapping** - DTO parsing and domain model conversion
+* **ViewModels** - State management, pagination, and business logic
+* **Search Logic** - Filtering, debouncing, and API integration handling
+* **Error Handling** - Network error states
 
 ## Mock Objects
 
 Mock implementations isolate dependencies for pure unit testing:
 
 ```swift
-class MockJobRepository: JobRepositoryProtocol {
+class MockJobRepo: JobRepoType {
     // Mock implementation for testing
 }
 ```
@@ -315,20 +308,20 @@ class MockJobRepository: JobRepositoryProtocol {
 
 # Future Improvements
 
-* ✅ REST API Integration
-* ✅ Pagination & Infinite Scrolling
-* ✅ SwiftData/Core Data for persistence
-* ✅ Pull to Refresh
-* ✅ Favorites/Bookmarks feature
-* ✅ Advanced Filters
-* ✅ Company Logos with caching
-* ✅ Snapshot Testing
-* ✅ CI/CD Pipeline (GitHub Actions)
-* ✅ Firebase Analytics
-* ✅ Firebase Crashlytics
-* ✅ Push Notifications
-* ✅ User Authentication
-* ✅ Dark Mode Support
+* [x] REST API Integration
+* [x] Pagination & Infinite Scrolling
+* [x] Pull to Refresh
+* [x] Company Logos
+* [ ] SwiftData/Core Data for persistence
+* [ ] Favorites/Bookmarks feature
+* [ ] Advanced Filters
+* [ ] Snapshot Testing
+* [ ] CI/CD Pipeline (GitHub Actions)
+* [ ] Firebase Analytics
+* [ ] Firebase Crashlytics
+* [ ] Push Notifications
+* [ ] User Authentication
+* [ ] Dark Mode Support
 
 ---
 
@@ -338,7 +331,7 @@ class MockJobRepository: JobRepositoryProtocol {
 * **UI Framework:** SwiftUI
 * **Architecture:** CLEAN MVVM
 * **Concurrency:** Async/Await
-* **Testing:** XCTest
+* **Testing:** Swift Testing
 * **Design Pattern:** Dependency Injection, Repository Pattern
 * **Minimum iOS:** iOS 16.0+
 
@@ -380,11 +373,6 @@ Contributions are welcome! Please follow these steps:
 
 * Ensure all test files are added to the test target
 * Check scheme settings: Product → Scheme → Edit Scheme
-
-### JSON File Not Found
-
-* Verify `jobs.json` is in `Resources` folder
-* Check if file is added to target in Build Phases
 
 ---
 
